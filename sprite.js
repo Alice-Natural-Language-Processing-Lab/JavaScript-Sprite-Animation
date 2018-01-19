@@ -1,65 +1,77 @@
 class Sprite
 {
-   constructor(image, width, height, frameCount, x, y)
+   constructor(image, x, y)
    {
       this.image = image;
       this.x = x;
       this.y = y;
-      this.frame = 0;
-      this.frameCount = frameCount;
-      this.width = width;
-      this.height = height;
       this.left = false;
       this.right = false;
-
+      this.stop = true;
+      this.animations = [];
+      this.currentAnimation = null;
 
       this.objImg = new Image();
       this.objImg.onload = function(){
-         console.log("Image " + this.image + " loaded");
+         console.log("Image " + image + " loaded");
       }
       this.objImg.src = this.image;
    }
 
+   addAnimation(animation)
+   {
+      this.animations.push(animation);
+   }
+
+   getAnimationbyId(id)
+   {
+      let animation = this.animations.find(function (animation){
+         return animation.id === id });
+
+      return animation;
+   }
+
    moveRight(condition)
    {
-      this.right = condition;
+      if(condition)
+      {
+         this.setAnimation("right");
+      }
+      else
+      {
+         this.setAnimation("standing");
+      }
    }
 
    moveLeft(condition)
    {
-      this.left = condition;
-   }
-
-   nextFrame()
-   {
-      this.frame = (this.frame + 1) % this.frameCount;
+      if(condition)
+      {
+         this.setAnimation("left");
+      }
+      else
+      {
+         this.setAnimation("standing");
+      }
    }
 
    stop()
    {
-      this.frame = 0;
+      this.setAnimation("standing");
+   }
+
+   setAnimation(id)
+   {
+      this.currentAnimation = this.getAnimationbyId(id);
    }
 
    update()
    {
-      if(this.right)
-      {
-         this.nextFrame();
-      }
-
-      else if(this.left)
-      {
-         /*decrease frame*/
-      }
-
-      else
-      {
-         this.stop();
-      }
+      this.currentAnimation.nextFrame();
    }
 
    draw(context)
    {
-      context.drawImage(this.objImg, this.frame*256, 0, this.width, this.height, 0, 0, this.width, this.height);
+      this.currentAnimation.drawFrame(context, this.objImg, this.x, this.y);
    }
 }
